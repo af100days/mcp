@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Map host port 3000 to container port 80 (Nginx)
+    container_name: finance-calculator-frontend
+    restart: unless-stopped
+    # depends_on:
+    #   - backend # Ensures backend starts before frontend, though not strictly necessary for HTTP calls
+
+  backend:
+    build:
+      context: ./finance_calculator
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001" # Map host port 5001 to container port 5001 (Gunicorn/Flask)
+    container_name: finance-calculator-backend
+    restart: unless-stopped
+    environment:
+      # FLASK_ENV: development # Or production, depending on desired logging, etc.
+      # FLASK_APP: src.app:app # Already set in Dockerfile, but can be overridden
+      # Any other environment variables the backend might need
+      PYTHONUNBUFFERED: 1 # Ensures Python logs are sent straight to Docker logs
+
+volumes: # Optional: Define volumes if you need data persistence, not typically needed for these stateless services
+
+networks: # Optional: Define a custom network, though Docker Compose creates a default one
+  # app_network:
+  #   driver: bridge
+
+# To use a custom network, uncomment the network sections above and add:
+# services:
+#   frontend:
+#     networks:
+#       - app_network
+#   backend:
+#     networks:
+#       - app_network
